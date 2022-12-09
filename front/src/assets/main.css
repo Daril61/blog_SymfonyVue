@@ -1,0 +1,31 @@
+@import url('https://fonts.cdnfonts.com/css/geometria');
+
+:root{
+    --first:black;
+    --second:white;
+    --blue:#40c4ff;
+    --littles_text:#061e37;
+}
+
+*{
+    margin: 0;
+    bottom: 0;
+    box-sizing: border-box;
+
+    font-family: "Raleway", sans-serif !important;
+    font-family: inherit;
+}
+
+*::before, *::after{
+    box-sizing: border-box;
+}
+
+img, picture, svg, video{
+    display: block;
+    max-width: 100%;
+}
+
+
+p{
+    font-family: 'Geometria', sans-serif !important;
+}

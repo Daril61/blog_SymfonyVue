@@ -1,0 +1,135 @@
+<template>
+    <div class="list_article">
+        <table class="table_list">
+            <thead>
+            <th>Title</th>
+            <th>Content</th>
+            <th>Date</th>
+            <th>Edit</th>
+            <th>Delete</th>
+            </thead>
+            <tbody>
+            <tr v-for="(article) in list_article" v-bind:key="article.id"> 
+                <td>{{ article.title }}</td>
+                <td v-if="article.content.length<51">{{ article.content}}</td>
+                <td v-else>{{ article.content.substring(0,50)+".." }}</td>
+                <td>{{ article.date }}</td>
+                <td class="line_btn"><router-link :to="`/admin/edit/${article.id}`"><i class="fa-solid fa-pen-to-square"></i></router-link></td>
+                <td class="line_btn"><button v-on:click="delete_article(article.id)" class="list_btn"><i class="fa-solid fa-trash-can td_function"></i></button></td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</template>
+
+<script>
+export default {
+    name:'List',
+    data(){
+        return{
+            list_article:[],
+            nbr_article:0
+        }
+    },
+    async mounted() {
+        await this.create_articles();
+    },
+    methods: {
+        create_articles(){
+            console.log("init");
+            let nombre_artc = 50
+            this.nbr_article = nombre_artc;
+            for(let i = 0; i < nombre_artc; i++){
+                let article = {
+                    image:"http://127.0.0.1:5173/src/assets/img/image_type_article.jpg",
+                    title:"Titre de l'article. " + i,
+                    content:"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+                    date:"25 February 2017",
+                    id:i
+                }
+                this.list_article.push(article);
+            }
+
+            console.log(this.list_article);
+        },
+        delete_article(id){
+            console.log("Delete ", id);
+        }
+    },
+}
+</script>
+
+<style>
+.list_article{
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.list_admin_articles_container{
+    min-height: 100vh;
+    box-sizing: border-box;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    gap:65px;
+    color: var(--first);
+}
+
+tr{
+    height:25px;
+}
+
+td a, .td_function{
+    text-decoration: none;
+    color:var(--first);
+    cursor:pointer;
+}
+
+td a:active, .td_function:active{
+    color:var(--second)
+}
+
+.list_btn{
+    border:none;
+    background: none;
+}
+
+.table_list {
+    table-layout:fixed;
+    margin: 15px auto;
+}
+
+.table_list {
+    color: var(--first);
+    background: var(--second);
+    font-size: 12pt;
+    border-collapse: collapse;
+}
+
+.table_list .table_tiltes th, .table_list tfoot th {
+    color: var(--first);
+    background: var(--second);
+}
+
+.table_list caption {
+    padding:.6em;
+}
+
+.table_list th, .table_list td {
+    padding: .6em;
+    border: 1px solid var(--first);
+}
+
+.line_btn{
+    text-align: center;
+}
+
+.td_function{
+    
+    color:rgb(163, 6, 6) !important;
+}
+</style>
