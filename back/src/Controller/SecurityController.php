@@ -4,12 +4,13 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\PasswordHasher;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTAuthenticatedEvent;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class SecurityController extends ApiController
@@ -57,4 +58,24 @@ class SecurityController extends ApiController
         return new JsonResponse(['token' => $JWTManager->create($user)]);
     }
 
+    /**
+     * @param Request $request
+     * @param JWTTokenManagerInterface $JWTManager
+     * @return JsonResponse
+     */
+    #[Route(path: '/api/me', name: 'api-me', methods: ['POST'])]
+    public function getMe(ManagerRegistry $doctrine, Request $request): JsonResponse
+    {
+        $token = $request->headers->get('Authorization');
+        
+        $tokenParts = explode(".", $token);  
+        //$tokenHeader = base64_decode($tokenParts[0]);
+        $tokenPayload = base64_decode($tokenParts[1]);
+        $jwtPayload = json_decode($tokenPayload);
+        
+        $user = $doctrine->getManager()->getRepository(User::class)->findOneBySomeField($jwtPayload->username);
+
+        return new JsonResponse(['id' => $user->getId(), "roles" => $jwtPayload->roles]);
+
+    }
 }
