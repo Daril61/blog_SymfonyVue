@@ -15,7 +15,7 @@ use ApiPlatform\Metadata\GetCollection;
 
 #[ORM\Entity(repositoryClass: ArticlesRepository::class)]
 #[ApiResource(
-    security: 'is_granted("ROLE_ADMIN")',
+    
 )]
 class Articles
 {

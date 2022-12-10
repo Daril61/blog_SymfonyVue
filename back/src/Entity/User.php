@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
-    security: 'is_granted("ROLE_ADMIN")',
+    //security: 'is_granted("ROLE_ADMIN")',
     /*operations:
     [
         new GetCollection(read: false, paginationEnabled: false, controller: MeController::class),

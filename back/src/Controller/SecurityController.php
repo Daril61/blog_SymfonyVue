@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher;
-use Symfony\Component\PasswordHasher\PasswordHasherInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class SecurityController extends ApiController
@@ -27,7 +27,7 @@ class SecurityController extends ApiController
      * @return JsonResponse
      */
 	#[Route(path: '/api/register', name: 'register-check', methods: ['POST'])]
-    public function register(Request $request, PasswordHasherInterface $encoder): JsonResponse
+    public function register(Request $request, UserPasswordHasherInterface $encoder): JsonResponse
     {
         $request = $this->transformJsonBody($request);
         $username = $request->get('username');
@@ -39,7 +39,7 @@ class SecurityController extends ApiController
 
 
         $user = new User();
-        $user->setPassword($encoder->hash($user, $password));
+        $user->setPassword($encoder->hashPassword($user, $password));
         $user->setUsername($username);
         $this->em->persist($user);
         $this->em-> flush();
