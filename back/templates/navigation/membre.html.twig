@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page membre{% endblock %}
+
+{% block body %}
+        <h1>Mon espace membre</h1>
+
+        <h2>{{ app.user.username }} voici ton espace personnel</h2>
+
+        <dl>
+                <dt>Definition list</dt>
+                <dd>Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
+                aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                commodo consequat.</dd>
+                <dt>Lorem ipsum dolor sit amet</dt>
+                <dd>Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
+                aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                commodo consequat.</dd>
+        </dl>
+
+        <ol>
+                <li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</li>
+                <li>Aliquam tincidunt mauris eu risus.</li>
+                <li>Vestibulum auctor dapibus neque.</li>
+        </ol>
+
+
+
+{% endblock %}

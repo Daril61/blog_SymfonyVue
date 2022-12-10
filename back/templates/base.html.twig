@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>{% block title %}Welcome!{% endblock %}</title>
+	</head>
+	<body>
+		<nav class="navbar navbar-light bg-light">
+			<a class="navbar-brand" href="{{ path('home') }}">Accueil</a>
+			{% if app.user %}
+				<a class="btn btn-outline-info" href="{{ path('membre') }}">Page membre</a>
+				<a class="btn btn-outline-info" href="{{ path('article_index') }}">Articles</a>
+				{% if is_granted('ROLE_ADMIN') %}
+					<a class="btn btn-outline-warning" href="{{ path('admin') }}">Page admin</a>
+				{% endif %}
+				<div>
+					Bonjour {{ app.user.username }} <a class="btn btn-sm btn-danger" href="{{ path('app_logout') }}">Déconnexion</a>
+				</div>
+			{% else %}
+				<div>
+					<a class="btn btn-sm btn-primary" href="{{ path('utilisateur_new') }}">S'inscrire</a>
+
+				</div>
+			{% endif %}
+		</nav>
+		<div class="container">
+			{% if message is defined %}
+				<div class="alert alert-danger">
+					{{ message }}
+				</div>
+			{% endif %}
+			{% block body %}
+			{% endblock %}
+		</div>
+	</body>
+</html>
