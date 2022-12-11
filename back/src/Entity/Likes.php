@@ -2,20 +2,24 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiFilter;
 use App\Repository\LikesRepository;
 use Doctrine\ORM\Mapping as ORM;
+
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 
 #[ORM\Entity(repositoryClass: LikesRepository::class)]
-/*#[ApiResource(
+#[ApiResource(
     operations: [
         new Get(),
         new GetCollection()
     ]
-)]*/
+)]
+#[ApiFilter(SearchFilter::class, properties: ['user'])]
 class Likes
 {
     #[ORM\Id]

@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use App\Entity\Articles;
 use App\Entity\Likes;
 use App\Entity\User;
 use App\Repository\LikesRepository;
@@ -100,7 +101,7 @@ class SecurityController extends ApiController
      * @return JsonResponse
      */
     #[Route(path: '/api/articles/search', name: 'api-articles-search', methods: ['POST'])]
-    public function getArticleFromNameOrContent(ManagerRegistry $doctrine, Request $request): JsonResponse
+    public function getArticlesFromNameOrContent(ManagerRegistry $doctrine, Request $request): JsonResponse
     {
         $request = $this->transformJsonBody($request);
         $searchText = $request->get('searchText');
@@ -109,9 +110,18 @@ class SecurityController extends ApiController
             return $this->respondValidationError("Invalid searchText");
         }
         
-        $article = $doctrine->getManager()->getRepository(User::class)->findOneBySomeField($jwtPayload->username);
+        $articles = $doctrine->getManager()->getRepository(Articles::class)->findBySearchValue($searchText);
+        $returnArticles = array();
+        $i = 0;
+        foreach ($articles as $article) {
+            $tempArticle = array(
+                "id" => $article->getId()
+            );
 
-        return new JsonResponse(['id' => $user->getId(), "roles" => $jwtPayload->roles]);
+            array_push($returnArticles, $i, $tempArticle);
+            $i++;
+        }
 
+        return new JsonResponse($returnArticles);
     }
 }

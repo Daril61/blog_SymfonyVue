@@ -2,10 +2,17 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiFilter;
 use App\Repository\FavoriteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\GetCollection;
+
 #[ORM\Entity(repositoryClass: FavoriteRepository::class)]
+#[ApiResource()]
+#[ApiFilter(SearchFilter::class, properties: ['user'])]
 class Favorite
 {
     #[ORM\Id]

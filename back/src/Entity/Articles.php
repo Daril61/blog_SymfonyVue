@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-
+use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -10,13 +10,13 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ArticlesRepository;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
+
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 
 #[ORM\Entity(repositoryClass: ArticlesRepository::class)]
-#[ApiResource(
-    
-)]
+#[ApiResource()]
+
+#[ApiFilter(SearchFilter::class, properties: ['title' => "partial", "content" => "partial"])]
 class Articles
 {
     #[ORM\Id]
