@@ -14,17 +14,39 @@
 </template>
 
 <script>
+import Axios from "axios";
 export default {
     name:'Home',
     data() {
         return {
-            is_connected:true,
-            is_admin:true,
+            is_connected:false,
+            is_admin:false,
         }
+    },
+    async mounted() {
+        console.log(!!(localStorage.getItem('token')), 'test');
+        if(!!(localStorage.getItem('token'))){
+            this.is_connected = true;
+        }
+        await Axios.post("http://localhost:8000/api/me",
+        localStorage.getItem('token'), 
+        {
+            headers: {
+                'content-type': 'text/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then(res => res.data)
+        .then(data => {
+            if(data.roles.includes('ROLE_ADMIN')){
+                this.is_admin = true;
+            }
+        })
     },
     methods: {
         logout(){
+            localStorage.removeItem('token')
             this.is_connected = false;
+            this.is_admin = false;
         }
     },
 }

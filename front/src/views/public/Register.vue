@@ -1,16 +1,12 @@
 <template>
     <div class="register">
-        <div class="logo_login">
+        <div class="logo_login_register">
             <router-link to="/">LOGO</router-link>
         </div>
         <form class="register_form" @submit.prevent="register" autocomplete="off">
             <div>
-                <label for="pseudo">Pseudo :</label>
-                <input type="pseudo" name="pseudo" id="pseudo" v-model="user.pseudo" required>
-            </div>
-            <div>
-                <label for="email">Email :</label>
-                <input type="email" name="email" id="email" v-model="user.email" required>
+                <label for="username">Pseudo :</label>
+                <input type="username" name="username" id="username" v-model="user.username" required>
             </div>
             <div>
                 <label for="password">Mot de passe :</label>
@@ -23,20 +19,22 @@
 </template>
 
 <script>
+import Axios from "axios";
 export default {
     name:'Register',
     data() {
         return {
             user:{
-                pseudo:'',
-                email:'',
+                username:'',
                 password:''
             }
         }
     },
     methods: {
         register(){
-            console.log(this.user);
+            Axios.post("http://localhost:8000/api/register", this.user).then(res => console.log(res))
+
+            this.$router.push('/login')
         }
     },
 }

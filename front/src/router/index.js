@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Axios from "axios";
 
 import Home from '@/views/public/Home.vue'
 import Login from '@/views/public/Login.vue'
@@ -40,6 +41,25 @@ const router = createRouter({
     routes
 })
 
+router.beforeEach( async (to, from, next) => {
+    if(to.matched[0].name == "admin"){
+        await Axios.post("http://localhost:8000/api/me",
+        localStorage.getItem('token'), 
+        {
+            headers: {
+                'content-type': 'text/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then(res => res.data)
+        .then(data => {
+            console.log(data.roles)
+            if(!data.roles.includes('ROLE_ADMIN')){
+                router.push('/')
+            }
+        })
+    }
+    next();
+})
 
 export default router
         

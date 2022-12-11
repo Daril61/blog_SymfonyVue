@@ -10,12 +10,12 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 
 #[ORM\Entity(repositoryClass: LikesRepository::class)]
-#[ApiResource(
+/*#[ApiResource(
     operations: [
         new Get(),
         new GetCollection()
     ]
-)]
+)]*/
 class Likes
 {
     #[ORM\Id]

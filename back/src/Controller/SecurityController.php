@@ -1,8 +1,9 @@
 <?php
 namespace App\Controller;
 
-
+use App\Entity\Likes;
 use App\Entity\User;
+use App\Repository\LikesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -10,7 +11,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTAuthenticatedEvent;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class SecurityController extends ApiController
@@ -58,13 +58,7 @@ class SecurityController extends ApiController
         return new JsonResponse(['token' => $JWTManager->create($user)]);
     }
 
-    /**
-     * @param Request $request
-     * @param JWTTokenManagerInterface $JWTManager
-     * @return JsonResponse
-     */
-    #[Route(path: '/api/me', name: 'api-me', methods: ['POST'])]
-    public function getMe(ManagerRegistry $doctrine, Request $request): JsonResponse
+    private function getUserIDByRequest(ManagerRegistry $doctrine, Request $request): User
     {
         $token = $request->headers->get('Authorization');
         
@@ -74,6 +68,48 @@ class SecurityController extends ApiController
         $jwtPayload = json_decode($tokenPayload);
         
         $user = $doctrine->getManager()->getRepository(User::class)->findOneBySomeField($jwtPayload->username);
+        return $user;
+    }
+
+    /**
+     * @param ManagerRegistry $doctrine
+     * @param Request $request
+     * @return JsonResponse
+     */
+    #[Route(path: '/api/me', name: 'api-me', methods: ['POST'])]
+    public function getMe(ManagerRegistry $doctrine, Request $request): JsonResponse
+    {
+        $user = $this->getUserIDByRequest($doctrine, $request);
+
+        return new JsonResponse(['id' => $user->getId(), "roles" => $user->getRoles()]);
+    }
+
+    #[Route(path: '/api/likes', name: 'api-like', methods: ['POST'])]
+    public function getMyLike(ManagerRegistry $doctrine, Request $request): JsonResponse
+    {
+        $user = $this->getUserIDByRequest($doctrine, $request);
+
+        $likes = $doctrine->getManager()->getRepository(Likes::class)->findByExampleField($user);
+
+        return new JsonResponse(["user" => $user, $likes]);
+    }
+
+    /**
+     * @param ManagerRegistry $doctrine
+     * @param Request $request
+     * @return JsonResponse
+     */
+    #[Route(path: '/api/articles/search', name: 'api-articles-search', methods: ['POST'])]
+    public function getArticleFromNameOrContent(ManagerRegistry $doctrine, Request $request): JsonResponse
+    {
+        $request = $this->transformJsonBody($request);
+        $searchText = $request->get('searchText');
+
+        if (empty($searchText)) {
+            return $this->respondValidationError("Invalid searchText");
+        }
+        
+        $article = $doctrine->getManager()->getRepository(User::class)->findOneBySomeField($jwtPayload->username);
 
         return new JsonResponse(['id' => $user->getId(), "roles" => $jwtPayload->roles]);
 

@@ -13,7 +13,7 @@
                 <td>{{ article.title }}</td>
                 <td v-if="article.content.length<51">{{ article.content}}</td>
                 <td v-else>{{ article.content.substring(0,50)+".." }}</td>
-                <td>{{ article.date }}</td>
+                <td>{{ article.creation_date }}</td>
                 <td class="line_btn"><router-link :to="`/admin/edit/${article.id}`"><i class="fa-solid fa-pen-to-square"></i></router-link></td>
                 <td class="line_btn"><button v-on:click="delete_article(article.id)" class="list_btn"><i class="fa-solid fa-trash-can td_function"></i></button></td>
             </tr>
@@ -24,12 +24,12 @@
 </template>
 
 <script>
+import Axios from "axios";
 export default {
     name:'List',
     data(){
         return{
-            list_article:[],
-            nbr_article:0
+            list_article:[]
         }
     },
     async mounted() {
@@ -37,24 +37,15 @@ export default {
     },
     methods: {
         create_articles(){
-            console.log("init");
-            let nombre_artc = 50
-            this.nbr_article = nombre_artc;
-            for(let i = 0; i < nombre_artc; i++){
-                let article = {
-                    image:"http://127.0.0.1:5173/src/assets/img/image_type_article.jpg",
-                    title:"Titre de l'article. " + i,
-                    content:"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-                    date:"25 February 2017",
-                    id:i
-                }
-                this.list_article.push(article);
-            }
-
-            console.log(this.list_article);
+            Axios.get("http://localhost:8000/api/articles").then(res => res.data)
+            .then(data => {
+                console.log(data["hydra:member"])
+                //remplace datas par le nom de l'array contenant tout les articles
+                this.list_article = data["hydra:member"]
+            })
         },
         delete_article(id){
-            console.log("Delete ", id);
+            Axios.delete("http://localhost:8000/api/articles/" + id).then(res => console.log(res))
         }
     },
 }

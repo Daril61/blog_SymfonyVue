@@ -2,7 +2,7 @@
     <div class="post">
         <form class="big_view" v-if="big_view" @submit.prevent="post">
             <div class="big_view_image">
-                <img :src="this.article.img_url" alt="" style="display:block">
+                <img :src="this.article.image_url" alt="" style="display:block">
                 <div class="choice">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg')">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg')">
@@ -21,7 +21,7 @@
         </form>
         <form class="little_view" v-else @submit.prevent="post">
             <div class="little_view_image">
-                <img :src="this.article.img_url" alt="" style="display:block">
+                <img :src="this.article.image_url" alt="" style="display:block">
                 <div class="choice">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg')">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg')">
@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import Axios from "axios";
 export default {
     name:'Post',
     data() {
@@ -52,7 +53,9 @@ export default {
             article:{
                 title:'',
                 content:'',
-                img_url:''
+                image_url:'',
+                creation_date:Date.now(),
+                user_id:null,
             }
         }
     },
@@ -67,8 +70,11 @@ export default {
             this.article.img_url = src_img;
             document.getElementsByClassName("choice")[0].style.display = "none";
         },
-        post(){
-            console.log(this.article);
+        async post(){
+            await Axios.post("http://localhost:8000/api/users", localStorage.getItem('token')).then(res => res.data.id).then(id => {
+                this.user_id = id
+            })
+            Axios.post("http://localhost:8000/api/articles", this.article).then(res => console.log(res))
         },
         delete_image(){
             this.article.img_url = '';

@@ -2,7 +2,7 @@
     <div class="post">
         <form class="big_view" v-if="big_view" @submit.prevent="edit">
             <div class="big_view_image">
-                <img :src="this.article.img_url" alt="" style="display:block">
+                <img :src="this.article.imageURL" alt="" style="display:block">
                 <div class="choice">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg')">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg')">
@@ -21,7 +21,7 @@
         </form>
         <form class="little_view" v-else @submit.prevent="edit">
             <div class="little_view_image">
-                <img :src="this.article.img_url" alt="" style="display:block">
+                <img :src="this.article.imageURL" alt="" style="display:block">
                 <div class="choice">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg')">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg')">
@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import Axios from "axios";
 export default {
     name:'Edit',
     props:['id'],
@@ -58,14 +59,11 @@ export default {
     },
     methods: {
         get_article(){
-            this.article = {
-                image:"https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-geler.jpg",
-                title:"Titre de l'article. " + this.id,
-                content:"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-                date:"25 February 2017"
-            }
-
-            console.log(this.article);
+            Axios.get("http://localhost:8000/api/articles/" + this.id).then(res => res.data)
+            .then(data => {
+                //remplace article par le nom de l'object article
+                this.article = data
+            })
         },
         image_gived(){
             if(this.article.image !== ''){
@@ -74,14 +72,14 @@ export default {
             return false;
         },
         select_pic(src_img){
-            this.article.img_url = src_img;
+            this.article.imageURL = src_img;
             document.getElementsByClassName("choice")[0].style.display = "none";
         },
         edit(){
-            console.log(this.article);
+            Axios.put("http://localhost:8000/api/articles/" + this.id, this.article).then(res => console.log(res))
         },
         delete_image(){
-            this.article.img_url = '';
+            this.article.imageURL = '';
             document.getElementsByClassName("choice")[0].style.display = "grid";
         }
     },

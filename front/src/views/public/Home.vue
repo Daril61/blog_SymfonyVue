@@ -5,12 +5,19 @@
             <h1>BLOG DE ROMAIN & COLIN</h1>
             <p>Voici notre blog, nous avons fais tout de A à Z sur ce site.</p>
         </div>
+        <form class="research_div" @submit.prevent="searching" autocomplete="off">
+            <input type="text" name="research" id="research" class="research" placeholder="Search" v-model="search">
+        </form>
         <div id="articles_container" >
             <div class="article" v-for="(article) in selected_articles" v-bind:key="article.id">
-                <img :src="article.image" alt="" class="image_article">
+                <img :src="article.imageURL" alt="" class="image_article">
+                <div class="favori_icon" @click="like(article.id)">
+                    <i class="fa-solid fa-star" v-if="liked_articles.includes(article.id)"></i>
+                    <i class="fa-regular fa-star" v-else></i>
+                </div>
                 <h1 class="title_article">{{article.title}}</h1>
                 <p class="content_article">{{article.content}}</p>
-                <p class="date_article">{{article.date}}</p>
+                <p class="date_article">{{article.creation_date}}</p>
             </div>
             
         </div>
@@ -20,6 +27,8 @@
 </template>
 
 <script>
+import Axios from "axios";
+
 export default {
     name:'Home',
     props: ['id'],
@@ -27,12 +36,19 @@ export default {
         return {
             nbr_article:0,
             all_articles:[],
-            selected_articles:[]
+            selected_articles:[],
+            liked_articles:[],
+            search:'',
+
+            user_id:null,
+            is_connected:false,
         }
     },
     async mounted(){
-        await this.init_articles();
-        await this.select_articles();
+        await this.init_articles().finally(
+            () => this.select_articles()
+        )
+        
 
         //Permet d'avoir une grid adapté au nombre d'article
         let list_articles = document.getElementsByClassName("article");
@@ -64,22 +80,21 @@ export default {
         list_pages_btn[this.id - 1].classList.add("selected_page");
 
         document.getElementById("home_link").className = ["router-link-exact-active"];
+
+        if(!!localStorage.getItem('token'))
+            this.is_connected = true;
     },
     methods: {
-        init_articles(){
-            let nombre_artc = 15
-            this.nbr_article = nombre_artc;
-            let list_imgs = ["https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-geler.jpg", "https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg", "https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg", "https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-soleil.jpg"]
-            for(let i = 0; i < nombre_artc; i++){
-                let article = {
-                    image:list_imgs[Math.floor(Math.random() * list_imgs.length)],
-                    title:"Titre de l'article. " + i,
-                    content:"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-                    date:"25 February 2017",
-                    id:i
-                }
-                this.all_articles.push(article);
-            }
+        async init_articles(){
+            return Axios.get("http://localhost:8000/api/articles").then(res => res.data)
+            .then(data => {
+                //remplace datas par le nom de l'array contenant tout les articles
+                this.all_articles = data['hydra:member']
+                //console.log(data['hydra:member'])
+                console.log(this.all_articles)
+
+                this.nbr_article = this.all_articles.length
+            })
         },
         select_articles(){
             for(let i = 9 * (parseInt(this.id) - 1); i < 9 * parseInt(this.id); i++){
@@ -87,6 +102,47 @@ export default {
                     break;
                 this.selected_articles.push(this.all_articles[i]);
             }
+        },
+        async searching(){
+            //Potentiellement changer la route
+            Axios.post("http://localhost:8000/api/articles/search", this.search).then(res => res.data)
+            .then(data => {
+                //remplace datas par le nom de l'array contenant tout les articles
+                this.all_articles = data.datas
+            })
+
+            this.nbr_article = this.all_articles.length
+            this.select_articles()
+        },
+        async get_liked_articles(){
+            await Axios.post("http://localhost:8000/api/me",
+            localStorage.getItem('token'), 
+            {
+                headers: {
+                    'content-type': 'text/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            }).then(res => res.data)
+            .then(data => {
+                console.log(data.roles)
+                if(!data.roles.includes('ROLE_ADMIN')){
+                    router.push('/')
+                }
+            })
+            await Axios.post("http://localhost:8000/api/me", localStorage.getItem('token')).then(res => res.data.id).then(id => {
+                this.user_id = id
+            })
+            if(this.is_connected){
+                await Axios.get("http://localhost:8000/api/likes/" + user_id).then(res => res.data)
+                .then(data => {
+                    //remplace datas par le nom de l'array contenant tout les id des articles
+                    this.liked_articles = data.datas
+                })
+            }
+        },
+        like(id){
+            if(this.is_connected)
+                Axios.post("http://localhost:8000/api/like", {user_id : this.user_id, article_id : id}).then(res => console.log(res))
         }
     },
 }
@@ -154,6 +210,8 @@ main{
     grid-template-rows: repeat(5, 1fr);
     grid-column-gap: 25px;
     grid-row-gap: 25px;
+
+    position: relative;
 }
 
 .first_article .image_article{
@@ -198,6 +256,7 @@ main{
 .article{
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .article > *{
@@ -281,8 +340,36 @@ main{
 }
 
 .selected_page, #pages_choice .page:hover{
-    background: var(--blue) !important;
+    background: var(--seco) !important;
     color:var(--second) !important;
 }
 
+.research_div{
+    margin: 10px 20px;
+}
+
+.research{
+    border:1px solid var(--first);
+    background: var(--second);
+    height: 30px;
+    width: 250px;
+    border-radius: 10px;
+    padding:3px 10px;
+    text-align: left !important;
+    color: var(--first);
+}
+
+.favori_icon{
+    position: absolute;
+    z-index: 100;
+    color: var(--second);
+    top:3px;
+    left:3px;
+
+    cursor: pointer;
+}
+
+.favori_icon:hover{
+    opacity: 0.8;
+}
 </style>

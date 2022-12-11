@@ -1,12 +1,12 @@
 <template>
     <div class="login">
-        <div class="logo_login">
+        <div class="logo_login_register">
             <router-link to="/">LOGO</router-link>
         </div>
         <form class="login_form" @submit.prevent="login">
             <div>
-                <label for="email">Email :</label>
-                <input type="email" name="email" id="email" v-model="user.email" required>
+                <label for="username">Username :</label>
+                <input type="username" name="username" id="username" v-model="user.username" required>
             </div>
             <div>
                 <label for="password">Mot de passe :</label>
@@ -19,19 +19,25 @@
 </template>
 
 <script>
+import Axios from "axios";
 export default {
     name:'Login',
     data(){
         return{
             user : {
-                email:'',
+                username:'',
                 password:''
             }
         }
     },
     methods: {
         login(){
-            console.log(this.user);
+            Axios.post("http://localhost:8000/api/login_check", this.user)
+            .then(res => {
+                localStorage.setItem('token', res.data.token)
+            })
+
+            this.$router.push('/')
         }
     },
 }
@@ -49,11 +55,11 @@ export default {
     gap:50px;
 }
 
-.logo_login{
+.logo_login_register{
     margin-top:-200px;
 }
 
-.logo_login a{
+.logo_login_register a{
     text-decoration: none;
     font-size: 3rem;
     font-weight: 600;
