@@ -63,42 +63,71 @@ export default {
         }
     },
     async mounted(){ 
+        this.is_connected = false;
         if(!!localStorage.getItem('token'))
             this.is_connected = true;
+        
+        console.log("Token : " + this.is_connected == true)
 
         return await this.init_articles().finally(
             () => { 
-            this.getUserID().finally(
-                () => {
-                    console.log("trttt")
-                    this.get_fav_articles().finally( () => {
-                        
-                        let parent_btn = document.getElementById("pages_choice")
-                        let nbr_btn_page = Math.ceil(this.nbr_article/9)
-                        for(let i=0; (this.id < nbr_btn_page)?i<=nbr_btn_page:i<nbr_btn_page; i++){
-                            let btn = document.createElement("a");
-                            if(i == nbr_btn_page){
-                                btn.innerHTML = '<i class="fa fa-angle-right">';
-                                    btn.classList.add("next");
-                                    btn.href="/home/"+ (parseInt(this.id)+1);
-                                }else{
-                                    btn.innerHTML = i+1;
-                                    btn.href="/home/"+ (i+1);
-                                }
-                                btn.classList.add("page");
-                                parent_btn.appendChild(btn);
-                            }
+            if(this.is_connected) {
+                this.getUserID().finally(
+                    () => {
+                        console.log("trttt")
+                        this.get_fav_articles().finally( () => {
                             
-                            let list_pages_btn = document.getElementsByClassName("page");
-                        list_pages_btn[this.id - 1].classList.add("selected_page");
-                        
-                        document.getElementById("home_link").className = ["router-link-exact-active"];
-                        
-                        this.select_articles()
-                        this.sort_article()
-                    }) 
-                }
-            )
+                            let parent_btn = document.getElementById("pages_choice")
+                            let nbr_btn_page = Math.ceil(this.nbr_article/9)
+                            for(let i=0; (this.id < nbr_btn_page)?i<=nbr_btn_page:i<nbr_btn_page; i++){
+                                let btn = document.createElement("a");
+                                if(i == nbr_btn_page){
+                                    btn.innerHTML = '<i class="fa fa-angle-right">';
+                                        btn.classList.add("next");
+                                        btn.href="/home/"+ (parseInt(this.id)+1);
+                                    }else{
+                                        btn.innerHTML = i+1;
+                                        btn.href="/home/"+ (i+1);
+                                    }
+                                    btn.classList.add("page");
+                                    parent_btn.appendChild(btn);
+                                }
+                                
+                                let list_pages_btn = document.getElementsByClassName("page");
+                            list_pages_btn[this.id - 1].classList.add("selected_page");
+                            
+                            document.getElementById("home_link").className = ["router-link-exact-active"];
+                            
+                            this.select_articles()
+                            this.sort_article()
+                        }) 
+                    }
+                )
+            } else {
+                let parent_btn = document.getElementById("pages_choice")
+                let nbr_btn_page = Math.ceil(this.nbr_article/9)
+                for(let i=0; (this.id < nbr_btn_page)?i<=nbr_btn_page:i<nbr_btn_page; i++){
+                    let btn = document.createElement("a");
+                    if(i == nbr_btn_page){
+                        btn.innerHTML = '<i class="fa fa-angle-right">';
+                            btn.classList.add("next");
+                            btn.href="/home/"+ (parseInt(this.id)+1);
+                        }else{
+                            btn.innerHTML = i+1;
+                            btn.href="/home/"+ (i+1);
+                        }
+                        btn.classList.add("page");
+                        parent_btn.appendChild(btn);
+                    }
+                    
+                    let list_pages_btn = document.getElementsByClassName("page");
+                list_pages_btn[this.id - 1].classList.add("selected_page");
+                
+                document.getElementById("home_link").className = ["router-link-exact-active"];
+                
+                this.select_articles()
+                this.sort_article()
+            }
         })
     },
     methods: {
@@ -145,19 +174,23 @@ export default {
             }
         },
         async getUserID() {
-            if(this.is_connected) 
+            if(this.is_connected) {
 
-            return Axios.post("http://localhost:8000/api/me",
-            localStorage.getItem('token'), 
-            {
-                headers: {
-                    'content-type': 'text/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('token')
-                }
-            }).then(res => res.data)
-            .then(data => {
-                this.user_id = data['id']
-            })
+                return Axios.post("http://localhost:8000/api/me",
+                localStorage.getItem('token'), 
+                {
+                    headers: {
+                        'content-type': 'text/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                }).then(res => res.data)
+                .then(data => {
+                    this.user_id = data['id']
+                })
+            } else {
+                throw "Not connected"
+            }
+            
         },
         async get_fav_articles(){
             if(this.is_connected)
