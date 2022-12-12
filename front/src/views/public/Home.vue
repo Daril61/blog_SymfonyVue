@@ -14,7 +14,7 @@
        
 
         <div id="articles_container" v-if="(!show_fav)">
-            <div class="article" v-for="(article) in this.selected_articles" v-bind:key="article.id">
+            <div class="article" v-for="(article) in this.selected_articles" v-bind:key="article.id" @click="this.$router.push('/article/'+article.id)">
                 <img :src="article.imageURL" alt="" class="image_article">
                 <div class="favori_icon" @click="fav(article.id)">
                     <i class="fa-solid fa-star" v-if="this.fav_articlesId.includes(article.id)"></i>
@@ -26,7 +26,7 @@
             </div>
         </div>
         <div id="articles_container" v-else>
-            <div class="article" v-for="(article) in this.list_fav_articles" v-bind:key="article.id">
+            <div class="article" v-for="(article) in this.list_fav_articles" v-bind:key="article.id" @click="this.$router.push('/article/'+article.id)">
                 <img :src="article.imageURL" alt="" class="image_article">
                 <div class="favori_icon" @click="fav(article.id)">
                     <i class="fa-solid fa-star"></i>

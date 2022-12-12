@@ -3,6 +3,7 @@ import Axios from "axios";
 
 import Home from '@/views/public/Home.vue'
 import Login from '@/views/public/Login.vue'
+import Article from '@/views/public/ArticleHome.vue'
 import Register from '@/views/public/Register.vue'
 import PublicLayout from '@/views/public/Layout.vue'
 
@@ -18,6 +19,7 @@ const routes = [
         component: PublicLayout,
         children : [
             {path:'home/:id(\\d+)',name:'home',component:Home, props:true},
+            {path:'article/:id(\\d+)',name:'article', component:Article, props:true},
             {path:'/', redirect:'/home/1'},
             {path:'/:pathMatch(.*)*', redirect: '/home/1'}
         ]

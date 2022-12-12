@@ -17,8 +17,7 @@ import Footer from '@/components/Footer.vue'
 export default{
     name:'PublicLayout',
     components: {
-        Navigation,
-        Footer
+        Navigation
     }
 }
 </script>
