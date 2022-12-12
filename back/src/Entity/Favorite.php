@@ -12,7 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 
 #[ORM\Entity(repositoryClass: FavoriteRepository::class)]
 #[ApiResource()]
-#[ApiFilter(SearchFilter::class, properties: ['user'])]
+#[ApiFilter(SearchFilter::class, properties: ['user', 'article'])]
 class Favorite
 {
     #[ORM\Id]

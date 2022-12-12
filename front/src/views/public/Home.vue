@@ -67,12 +67,14 @@ export default {
         if(!!localStorage.getItem('token'))
             this.is_connected = true;
         
-        console.log("Token : " + this.is_connected == true)
+        console.log("Token : " + (this.is_connected == true))
 
         return await this.init_articles().finally(
-            () => { 
-            if(this.is_connected) {
-                this.getUserID().finally(
+            () => {
+                console.log("test : " + this.is_connected == false)
+                if(this.is_connected) {
+                    console.log("gergerbgaerbgçbzeuiezugbdiycfvqsyuev")
+                    this.getUserID().finally(
                     () => {
                         console.log("trttt")
                         this.get_fav_articles().finally( () => {
@@ -101,39 +103,40 @@ export default {
                             this.select_articles()
                             this.sort_article()
                         }) 
-                    }
-                )
-            } else {
-                let parent_btn = document.getElementById("pages_choice")
-                let nbr_btn_page = Math.ceil(this.nbr_article/9)
-                for(let i=0; (this.id < nbr_btn_page)?i<=nbr_btn_page:i<nbr_btn_page; i++){
-                    let btn = document.createElement("a");
-                    if(i == nbr_btn_page){
-                        btn.innerHTML = '<i class="fa fa-angle-right">';
-                            btn.classList.add("next");
-                            btn.href="/home/"+ (parseInt(this.id)+1);
-                        }else{
-                            btn.innerHTML = i+1;
-                            btn.href="/home/"+ (i+1);
+                    })
+                } else {
+                    console.log("else")
+                    let parent_btn = document.getElementById("pages_choice")
+                    let nbr_btn_page = Math.ceil(this.nbr_article/9)
+                    for(let i=0; (this.id < nbr_btn_page)?i<=nbr_btn_page:i<nbr_btn_page; i++){
+                        let btn = document.createElement("a");
+                        if(i == nbr_btn_page){
+                            btn.innerHTML = '<i class="fa fa-angle-right">';
+                                btn.classList.add("next");
+                                btn.href="/home/"+ (parseInt(this.id)+1);
+                            }else{
+                                btn.innerHTML = i+1;
+                                btn.href="/home/"+ (i+1);
+                            }
+                            btn.classList.add("page");
+                            parent_btn.appendChild(btn);
                         }
-                        btn.classList.add("page");
-                        parent_btn.appendChild(btn);
-                    }
-                    
-                    let list_pages_btn = document.getElementsByClassName("page");
-                list_pages_btn[this.id - 1].classList.add("selected_page");
+                        
+                        let list_pages_btn = document.getElementsByClassName("page");
+                        list_pages_btn[this.id - 1].classList.add("selected_page");
                 
-                document.getElementById("home_link").className = ["router-link-exact-active"];
+                        document.getElementById("home_link").className = ["router-link-exact-active"];
                 
-                this.select_articles()
-                this.sort_article()
-            }
+                        this.select_articles()
+                        this.sort_article()
+                }
         })
     },
     methods: {
         async init_articles(){
             return Axios.get("http://localhost:8000/api/articles").then(res => res.data)
             .then(data => {
+                console.log(data)
                 //remplace datas par le nom de l'array contenant tout les articles
                 this.all_articles = data['hydra:member']
                 //console.log(data['hydra:member'])
@@ -155,9 +158,12 @@ export default {
             if(this.search != "") {
                 //Potentiellement changer la route
                 console.log(this.search)
-                return await Axios.post("http://localhost:8000/api/articles/search", this.search).then(res => res.data)
+                return await Axios.post("http://localhost:8000/api/articles/search", {"searchText" : this.search}).then(res => res.data)
                 .then(data => {
                     console.log(data)
+                    data.forEach(a => {
+                        console.log(a)
+                    })
                     //remplace datas par le nom de l'array contenant tout les articles
                     this.all_articles = data.datas
                 }).finally(() => {
@@ -264,7 +270,7 @@ export default {
             //Permet d'avoir une grid adapté au nombre d'article
             let list_articles = document.getElementsByClassName("article");
             console.log(list_articles.item(0))
-            if(list_articles.length > 0) {
+            if(list_articles.length > 0 && document.getElementsByClassName("first_article").length == 0) {
                 list_articles[0].classList = ["first_article"];
                 let articles_container = document.getElementById("articles_container");
                 if(list_articles.length > 4){

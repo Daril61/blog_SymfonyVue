@@ -45,6 +45,7 @@ const router = createRouter({
 
 router.beforeEach( async (to, from, next) => {
     if(to.matched[0].name == "admin"){
+        console.log("JESUISEXECUTE")
         await Axios.post("http://localhost:8000/api/me",
         localStorage.getItem('token'), 
         {
