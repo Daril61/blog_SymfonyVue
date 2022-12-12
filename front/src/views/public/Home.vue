@@ -29,8 +29,7 @@
             <div class="article" v-for="(article) in this.list_fav_articles" v-bind:key="article.id">
                 <img :src="article.imageURL" alt="" class="image_article">
                 <div class="favori_icon" @click="fav(article.id)">
-                    <i class="fa-solid fa-star" v-if="this.fav_articlesId.includes(article.id)"></i>
-                    <i class="fa-regular fa-star" v-else></i>
+                    <i class="fa-solid fa-star"></i>
                 </div>
                 <h1 class="title_article">{{article.title}}</h1>
                 <p class="content_article">{{article.content}}</p>
@@ -67,39 +66,40 @@ export default {
         if(!!localStorage.getItem('token'))
             this.is_connected = true;
 
-        await this.init_articles().finally(
+        return await this.init_articles().finally(
             () => { 
-                this.getUserID().finally(
-                    () => {
-                    this.get_fav_articles()  
-
-                    this.select_articles()
-                    this.sort_article()
-                    }
-                )
-            }
-        )
-
-        let parent_btn = document.getElementById("pages_choice")
-        let nbr_btn_page = Math.ceil(this.nbr_article/9)
-        for(let i=0; (this.id < nbr_btn_page)?i<=nbr_btn_page:i<nbr_btn_page; i++){
-            let btn = document.createElement("a");
-            if(i == nbr_btn_page){
-                btn.innerHTML = '<i class="fa fa-angle-right">';
-                btn.classList.add("next");
-                btn.href="/home/"+ (parseInt(this.id)+1);
-            }else{
-                btn.innerHTML = i+1;
-                btn.href="/home/"+ (i+1);
-            }
-            btn.classList.add("page");
-            parent_btn.appendChild(btn);
-        }
-
-        let list_pages_btn = document.getElementsByClassName("page");
-        list_pages_btn[this.id - 1].classList.add("selected_page");
-
-        document.getElementById("home_link").className = ["router-link-exact-active"];
+            this.getUserID().finally(
+                () => {
+                    console.log("trttt")
+                    this.get_fav_articles().finally( () => {
+                        
+                        let parent_btn = document.getElementById("pages_choice")
+                        let nbr_btn_page = Math.ceil(this.nbr_article/9)
+                        for(let i=0; (this.id < nbr_btn_page)?i<=nbr_btn_page:i<nbr_btn_page; i++){
+                            let btn = document.createElement("a");
+                            if(i == nbr_btn_page){
+                                btn.innerHTML = '<i class="fa fa-angle-right">';
+                                    btn.classList.add("next");
+                                    btn.href="/home/"+ (parseInt(this.id)+1);
+                                }else{
+                                    btn.innerHTML = i+1;
+                                    btn.href="/home/"+ (i+1);
+                                }
+                                btn.classList.add("page");
+                                parent_btn.appendChild(btn);
+                            }
+                            
+                            let list_pages_btn = document.getElementsByClassName("page");
+                        list_pages_btn[this.id - 1].classList.add("selected_page");
+                        
+                        document.getElementById("home_link").className = ["router-link-exact-active"];
+                        
+                        this.select_articles()
+                        this.sort_article()
+                    }) 
+                }
+            )
+        })
     },
     methods: {
         async init_articles(){
@@ -123,10 +123,9 @@ export default {
             }
         },
         async searching(){
-            console.log("searching")
-            this.search = ""
-            /*if(this.search != "") {
+            if(this.search != "") {
                 //Potentiellement changer la route
+                console.log(this.search)
                 return await Axios.post("http://localhost:8000/api/articles/search", this.search).then(res => res.data)
                 .then(data => {
                     console.log(data)
@@ -143,7 +142,7 @@ export default {
                     this.select_articles()
                     this.sort_article()
                 })
-            }*/
+            }
         },
         async getUserID() {
             if(this.is_connected) 
@@ -163,7 +162,7 @@ export default {
         async get_fav_articles(){
             if(this.is_connected)
 
-            Axios.get("http://localhost:8000/api/favorites/?user=" + this.user_id).then(res => res.data)
+            return Axios.get("http://localhost:8000/api/favorites/?user=" + this.user_id).then(res => res.data)
             .then(data => {                
                 let tempFav = data["hydra:member"]
                 console.log(tempFav)
@@ -199,7 +198,7 @@ export default {
                 if(test) {
                     var index = this.fav_articlesId.indexOf(id)
                     var favId = this.fav_articlesFavId[index]
-                    Axios.delete("http://localhost:8000/api/favorites", {"id" : favId})
+                    Axios.delete("http://localhost:8000/api/favorites/"+ favId)
                     .then(res => {
                         console.log(res)
                         this.fav_articlesFavId.slice(index, 1)
@@ -210,7 +209,10 @@ export default {
                     console.log("/api/users/" + this.user_id)
                     Axios.post("http://localhost:8000/api/favorites", {"article" : "/api/articles/"+id, "user" : "/api/users/"+this.user_id})
                     .then(res => {
-                        console.log(res)
+                        console.log(res.data)
+                        this.get_fav_articles()
+                        this.show_fav = !this.show_fav
+                        this.show_fav = !this.show_fav
                     })
                 }
         },
@@ -225,9 +227,10 @@ export default {
             this.sort_article()
             this.select_articles();
         },
-        async sort_article(){
+        sort_article(){
             //Permet d'avoir une grid adapté au nombre d'article
             let list_articles = document.getElementsByClassName("article");
+            console.log(list_articles.item(0))
             if(list_articles.length > 0) {
                 list_articles[0].classList = ["first_article"];
                 let articles_container = document.getElementById("articles_container");

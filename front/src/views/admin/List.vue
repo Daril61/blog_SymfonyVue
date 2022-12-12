@@ -25,6 +25,7 @@
 
 <script>
 import Axios from "axios";
+import { getCurrentInstance } from 'vue';
 export default {
     name:'List',
     data(){
@@ -45,7 +46,10 @@ export default {
             })
         },
         delete_article(id){
-            Axios.delete("http://localhost:8000/api/articles/" + id).then(res => console.log(res))
+            Axios.delete("http://localhost:8000/api/articles/" + id).then(res => console.log(res)).finally(() => 
+            {
+                window.location.reload();
+            })
         }
     },
 }

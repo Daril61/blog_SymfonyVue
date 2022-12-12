@@ -12,9 +12,22 @@ use App\Repository\ArticlesRepository;
 use ApiPlatform\Metadata\ApiResource;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 
 #[ORM\Entity(repositoryClass: ArticlesRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete()
+    ]
+)]
 
 #[ApiFilter(SearchFilter::class, properties: ['title' => "partial", "content" => "partial"])]
 class Articles

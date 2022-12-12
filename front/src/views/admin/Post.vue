@@ -2,7 +2,7 @@
     <div class="post">
         <form class="big_view" v-if="big_view" @submit.prevent="post">
             <div class="big_view_image">
-                <img :src="this.article.image_url" alt="" style="display:block">
+                <img :src="this.article.imageURL" alt="" style="display:block">
                 <div class="choice">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg')">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg')">
@@ -21,7 +21,7 @@
         </form>
         <form class="little_view" v-else @submit.prevent="post">
             <div class="little_view_image">
-                <img :src="this.article.image_url" alt="" style="display:block">
+                <img :src="this.article.imageURL" alt="" style="display:block">
                 <div class="choice">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac-vert.jpg')">
                     <img src="https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg" @click="select_pic('https://projetweb-romain-colin.s3.eu-west-3.amazonaws.com/foret-lac.jpg')">
@@ -50,34 +50,63 @@ export default {
     data() {
         return {
             big_view:true,
+            is_connected:false,
             article:{
+                user:"/api/users/",
                 title:'',
                 content:'',
-                image_url:'',
-                creation_date:Date.now(),
-                user_id:null,
+                imageURL:'',
+                creationDate:"2022-12-12T08:32:47.949Z"
             }
         }
     },
+    async mounted(){ 
+        if(!!localStorage.getItem('token'))
+            this.is_connected = true;
+    },
     methods: {
         image_gived(){
-            if(this.article.img_url !== ''){
+            if(this.article.imageURL !== ''){
                 return true;
             }
             return false;
         },
         select_pic(src_img){
-            this.article.img_url = src_img;
+            this.article.imageURL = src_img;
             document.getElementsByClassName("choice")[0].style.display = "none";
         },
-        async post(){
-            await Axios.post("http://localhost:8000/api/users", localStorage.getItem('token')).then(res => res.data.id).then(id => {
-                this.user_id = id
+        async getUserID() {
+            if(this.is_connected) 
+
+            return await Axios.post("http://localhost:8000/api/me",
+            localStorage.getItem('token'), 
+            {
+                headers: {
+                    'content-type': 'text/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            }).then(res => res.data)
+            .then(data => {
+                console.log(data.id)
+                this.article.user += data.id
             })
-            Axios.post("http://localhost:8000/api/articles", this.article).then(res => console.log(res))
+        },
+        async post(){
+            this.getUserID().finally(() => {
+                console.log(this.article)
+
+                Axios.post("http://localhost:8000/api/articles", this.article)
+                .then(
+                    res => console.log(res)
+                ).finally(
+                    () => {
+                        this.$router.push('/admin/list')
+                    }
+                )
+            })
         },
         delete_image(){
-            this.article.img_url = '';
+            this.article.imageURL = '';
             document.getElementsByClassName("choice")[0].style.display = "grid";
         }
     },

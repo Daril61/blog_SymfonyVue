@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Entity\Articles;
+use App\Entity\Favorite;
 use App\Entity\Likes;
 use App\Entity\User;
 use App\Repository\LikesRepository;
@@ -123,5 +124,21 @@ class SecurityController extends ApiController
         }
 
         return new JsonResponse($returnArticles);
+    }
+
+    #[Route('/favorites/remove/{id}', name: 'favorites_delete', methods: ['DELETE'])]
+    public function favoriteDelete(ManagerRegistry $doctrine, int $id)
+    {
+        $entityManager = $doctrine->getManager();
+        $fav = $entityManager->getRepository(Favorite::class)->find($id);
+
+        if (!$fav) {
+            throw $this->createNotFoundException(
+                'No Favorite found for id '.$id
+            );
+        }
+
+        $entityManager->remove($fav);
+        $entityManager->flush();
     }
 }
