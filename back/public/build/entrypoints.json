@@ -1,0 +1,11 @@
+{
+  "entrypoints": {
+    "app": {
+      "js": [
+        "/build/runtime.js",
+        "/build/vendors-node_modules_core-js_modules_es_function_name_js-node_modules_core-js_modules_es_obje-bf50eb.js",
+        "/build/app.js"
+      ]
+    }
+  }
+}
